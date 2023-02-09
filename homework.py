@@ -47,7 +47,7 @@ def previous_homework_status_decorator(func):
     previous_status = ''
 
     @wraps(func)
-    def wrapper(homework: dict) -> str:
+    def wrapper(homework):
         nonlocal previous_status
         data = func(homework)
         if data['status'] != previous_status:
@@ -68,7 +68,7 @@ def check_tokens() -> None:
                               f'окружения "{env_var}"')
 
 
-def send_message(bot: telegram.Bot, message: str) -> None:
+def send_message(bot: telegram.Bot, message):
     """Отправляем сообщение об обновлённом статусе пользователю."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
@@ -78,7 +78,7 @@ def send_message(bot: telegram.Bot, message: str) -> None:
         raise TelegramSendMessageError(error)
 
 
-def get_api_answer(timestamp: int) -> dict:
+def get_api_answer(timestamp):
     """Делаем запрос к API, возвращаем преобразованный к словарю результат."""
     payload = {'from_date': timestamp}
     try:
@@ -93,7 +93,7 @@ def get_api_answer(timestamp: int) -> dict:
         raise Exception(f'Ошибка при подключении к API по адресу {ENDPOINT}')
 
 
-def check_response(response: dict) -> None:
+def check_response(response):
     """Проверяем ответ API на наличие необходимых ключей и домашних работ."""
     if type(response) != dict:
         logger.error(f'Ответ API {response} не является словарем')
@@ -114,7 +114,7 @@ def check_response(response: dict) -> None:
 
 
 @previous_homework_status_decorator
-def parse_status(homework: dict) -> dict[str, str]:
+def parse_status(homework):
     """Получаем статус последней домашней работы.
     Возвращаем статус и сообщение, которое будет отправлено в случае,
     если статус изменился.
