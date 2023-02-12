@@ -133,7 +133,7 @@ def main():
                     send_message(bot, message)
                     previous_message = message
                 else:
-                    logger.debug(f'Статус домашней работы не изменился')
+                    logger.debug('Статус домашней работы не изменился')
             else:
                 logger.debug('response["homeworks"] содержит пустой список')
         except DontSendTelegramError as error:
