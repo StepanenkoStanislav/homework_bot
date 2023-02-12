@@ -1,30 +1,6 @@
-class VarEnvError(Exception):
-    pass
+class DontSendTelegramError(Exception):
+    """Незначительные ошибки, которые не требуют отправки в Телеграм."""
 
 
-class ResponseKeyError(Exception):
-    pass
-
-
-class EmptyHomeworksListError(Exception):
-    pass
-
-
-class HomeworkStatusError(Exception):
-    pass
-
-
-class HomeworkVerdictError(Exception):
-    pass
-
-
-class ApiNotAvailable(Exception):
-    pass
-
-
-class TelegramSendMessageError(Exception):
-    pass
-
-
-class HomeworkNameError(Exception):
-    pass
+class SendTelegramError(Exception):
+    """Ошибки, которые будут отправляться в Телеграм."""
