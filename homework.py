@@ -25,22 +25,17 @@ HOMEWORK_VERDICTS = {
     'reviewing': 'Работа взята на проверку ревьюером.',
     'rejected': 'Работа проверена: у ревьюера есть замечания.'
 }
+
 logging.basicConfig(
-    level=logging.ERROR,
+    level=logging.DEBUG,
     format=('%(asctime)s - %(name)s - %(levelname)s - '
             'line %(lineno)s - %(message)s'),
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler(filename='logger.log', encoding='utf-8')
+    ]
 )
-
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-log_formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - line %(lineno)s - %(message)s')
-file_handler = logging.FileHandler(
-    filename='logger.log',
-    encoding='utf-8'
-)
-file_handler.setFormatter(log_formatter)
-logger.addHandler(file_handler)
 
 
 def check_tokens() -> bool:
@@ -70,7 +65,7 @@ def get_api_answer(timestamp: int) -> dict:
                 f'{response.reason}, text: {response.text}')
         return response.json()
     except requests.RequestException as error:
-        raise SendTelegramError(f'Ошибка при подключении к API по адресу '
+        raise SendTelegramError('Ошибка при подключении к API по адресу '
                                 f'{ENDPOINT}, headers: {HEADERS}, '
                                 f'params: {payload}, {error}')
 
@@ -80,10 +75,10 @@ def check_response(response: dict) -> None:
     if not isinstance(response, dict):
         raise TypeError(f'Ответ API {response} не является словарем')
     if response.get('homeworks') is None:
-        raise DontSendTelegramError(f'В ответе API нет ключа "homeworks", '
+        raise DontSendTelegramError('В ответе API нет ключа "homeworks", '
                                     f'ключи ответа: {list(response.keys())}')
     if response.get('current_date') is None:
-        raise DontSendTelegramError(f'В ответе API нет ключа "current_date", '
+        raise DontSendTelegramError('В ответе API нет ключа "current_date", '
                                     f'ключи ответа: {list(response.keys())}')
     if not isinstance(response['homeworks'], list):
         raise TypeError('Домашние задания в ответе API не является списком')
@@ -96,13 +91,13 @@ def parse_status(homework: dict) -> str:
     """
     homework_status = homework.get('status')
     if homework_status is None:
-        raise DontSendTelegramError(f'В homework отсутствует "status"\n'
+        raise DontSendTelegramError('В homework отсутствует "status"'
                                     f'Ключи: {list(homework.keys())}')
 
     homework_verdict = HOMEWORK_VERDICTS.get(homework_status)
     if homework_verdict is None:
         raise DontSendTelegramError(f'Статус "{homework_status}" отсутствует'
-                                    f'Возможные статусы: '
+                                    'Возможные статусы: '
                                     f'{list(HOMEWORK_VERDICTS.keys())}')
 
     homework_name = homework.get('homework_name')
@@ -116,19 +111,22 @@ def parse_status(homework: dict) -> str:
 def main():
     """Основная логика работы бота."""
     if not check_tokens():
-        logger.critical('Отсутствует обязательная переменная окружения')
-        sys.exit('Отсутствует обязательная переменная окружения')
+        error_message = 'Отсутствует обязательная переменная окружения'
+        logger.critical(error_message)
+        sys.exit(error_message)
 
     previous_message = ''
+    exception_previous_message = ''
     timestamp = int(time.time())
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     while True:
         try:
             response = get_api_answer(timestamp)
             check_response(response)
-            timestamp = response['current_date']
-            if response['homeworks']:
-                message = parse_status(response['homeworks'][0])
+            timestamp = response.get('current_date', int(time.time()))
+            homeworks = response['homeworks']
+            if homeworks:
+                message = parse_status(homeworks[0])
                 if message != previous_message:
                     send_message(bot, message)
                     previous_message = message
@@ -137,13 +135,13 @@ def main():
             else:
                 logger.debug('response["homeworks"] содержит пустой список')
         except DontSendTelegramError as error:
-            logger.error(f'Сбой в работе программы: {error}')
+            logger.error(f'Сбой в работе программы: {error}', exc_info=True)
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
-            logger.error(message)
-            if message != previous_message:
-                previous_message = message
-                send_message(bot, message)
+            logger.error(message, exc_info=True)
+            if message != exception_previous_message:
+                exception_previous_message = message
+                send_message(bot, exception_previous_message)
         finally:
             time.sleep(RETRY_PERIOD)
 
