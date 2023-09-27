@@ -59,10 +59,10 @@ TELEGRAM_CHAT_ID=1234 - Id чата Telegram
 
 
 
-Запуск проекта
+### Запуск проекта
 ```python
 # В директории telegram_bot
-python homework.py
+python3 homework.py
 ```
 
 
