@@ -78,3 +78,7 @@ python3 homework.py
 - Python 3.7
 
 - python-telegram-bot 13.7
+
+## Автор
+
+[![Telegram Badge](https://img.shields.io/badge/StepanenkoStanislav-blue?logo=telegram&logoColor=white)](https://t.me/tme_zoom) [![Gmail Badge](https://img.shields.io/badge/-Gmail-red?style=flat&logo=Gmail&logoColor=white)](mailto:stepanenko.s.a.dev@gmail.com)
