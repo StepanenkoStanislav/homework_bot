@@ -68,10 +68,12 @@ python3 homework.py
 
 ## Технологии
 
-В проекте используются следующие технологии:
 <div>
   <img src="https://github.com/devicons/devicon/blob/master/icons/python/python-original.svg" title="python" alt="python" width="40" height="40"/>&nbsp
+  <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" title="telegram" alt="telegram" width="36" height="36"/>&nbsp
 </div>
+
+В проекте используются следующие технологии:
 
 - Python 3.7
 
